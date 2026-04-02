@@ -137,25 +137,25 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         
         # Update summary data in the template (columns B-F, rows 3-7)
         # Row 3: Average Throughput
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}3'] = avg_bandwidth
+        worksheet['B3'] = avg_bandwidth
+        worksheet.merge_cells('B3:F3')
         
         # Row 4: Total Hits
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}4'] = total_hits
+        worksheet['B4'] = total_hits
+        worksheet.merge_cells('B4:F4')
         
         # Row 5: Average Hits per Second
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}5'] = avg_hits_per_sec
+        worksheet['B5'] = avg_hits_per_sec
+        worksheet.merge_cells('B5:F5')
         
         # Row 6: 95% Response Time
         response_time_str = f"{int(avg_response_time)}/{response_95}"
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}6'] = response_time_str
+        worksheet['B6'] = response_time_str
+        worksheet.merge_cells('B6:F6')
         
         # Row 7: Errors
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}7'] = errors
+        worksheet['B7'] = errors
+        worksheet.merge_cells('B7:F7')
         
         print(f"  ✓ Updated summary data in template")
         
@@ -271,12 +271,12 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
                 cell.alignment = cell_alignment
         
         # Update row 10: Failed count of Transaction
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}10'] = failed_count
+        worksheet['B10'] = failed_count
+        worksheet.merge_cells('B10:F10')
         
         # Update row 11: Passed count of Transaction
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}11'] = passed_count
+        worksheet['B11'] = passed_count
+        worksheet.merge_cells('B11:F11')
         
         # Update row 12: Result (Fail if any of these conditions are true)
         # 1. Error rate > 1%
@@ -296,10 +296,9 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         overall_result = 'Fail' if (error_rate_fail or p95_fail or any_transaction_failed) else 'Pass'
         overall_result_color = 'FF0000' if (error_rate_fail or p95_fail or any_transaction_failed) else '0000FF'
         
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            cell = worksheet[f'{col}12']
-            cell.value = overall_result
-            cell.font = Font(color=overall_result_color, bold=True)
+        worksheet['B12'] = overall_result
+        worksheet['B12'].font = Font(color=overall_result_color, bold=True)
+        worksheet.merge_cells('B12:F12')
         
         # Update row 13: Analysis - explain why test failed or passed
         analysis_parts = []
@@ -320,8 +319,8 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
             analysis_text = "All metrics are within acceptable thresholds."
         
         # Write analysis to row 13
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}13'] = analysis_text
+        worksheet['B13'] = analysis_text
+        worksheet.merge_cells('B13:F13')
         
         print(f"  ✓ Added {len(df_transactions)} transactions to report")
         print(f"  ✓ Failed transactions: {failed_count}")
