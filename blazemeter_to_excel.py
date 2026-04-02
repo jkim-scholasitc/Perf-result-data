@@ -322,6 +322,10 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         worksheet['B13'] = analysis_text
         worksheet.merge_cells('B13:F13')
         
+        # Row 14: System Stats (keep empty but merge cells)
+        worksheet['B14'] = ''
+        worksheet.merge_cells('B14:F14')
+        
         print(f"  ✓ Added {len(df_transactions)} transactions to report")
         print(f"  ✓ Failed transactions: {failed_count}")
         print(f"  ✓ Passed transactions: {passed_count}")
