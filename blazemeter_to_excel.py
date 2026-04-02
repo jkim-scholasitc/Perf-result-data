@@ -119,6 +119,18 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         
         print(f"  ✓ Unmerged all cells for data update")
         
+        # Update Row 1: Test name (should be the input filename without extension)
+        test_name = os.path.splitext(os.path.basename(input_csv))[0]
+        for col in ['B', 'C', 'D', 'E', 'F']:
+            worksheet[f'{col}1'] = test_name
+        
+        # Update Row 2: Date (should be empty)
+        for col in ['B', 'C', 'D', 'E', 'F']:
+            worksheet[f'{col}2'] = ''
+        
+        print(f"  ✓ Updated Test name (Row 1) with filename: {test_name}")
+        print(f"  ✓ Cleared Date field (Row 2)")
+        
         # Update summary data in the template (columns B-F, rows 3-7)
         # Row 3: Average Throughput
         for col in ['B', 'C', 'D', 'E', 'F']:
