@@ -121,12 +121,16 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         
         # Update Row 1: Test name (should be the input filename without extension)
         test_name = os.path.splitext(os.path.basename(input_csv))[0]
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}1'] = test_name
+        worksheet['B1'] = test_name
+        
+        # Re-merge Row 1 cells B1:F1 after writing
+        worksheet.merge_cells('B1:F1')
         
         # Update Row 2: Date (should be empty)
-        for col in ['B', 'C', 'D', 'E', 'F']:
-            worksheet[f'{col}2'] = ''
+        worksheet['B2'] = ''
+        
+        # Re-merge Row 2 cells B2:F2 after clearing
+        worksheet.merge_cells('B2:F2')
         
         print(f"  ✓ Updated Test name (Row 1) with filename: {test_name}")
         print(f"  ✓ Cleared Date field (Row 2)")
