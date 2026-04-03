@@ -62,17 +62,50 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
     all_row = df[df['Element Label'] == 'ALL']
     
     if all_row.empty:
-        raise ValueError("No 'ALL' row found in the CSV file. Cannot extract summary data.")
+        print(f"  ⚠ No 'ALL' row found. Calculating aggregated data from all transactions...")
+        
+        # Calculate ALL row data from all transactions
+        total_hits = int(df['# Samples'].sum())
+        avg_bandwidth = df['Avg. Bandwidth (KBytes/s)'].sum()
+        avg_hits_per_sec = df['Avg. Hits/s'].mean()
+        avg_response_time = df['Avg. Response Time (ms)'].mean()
+        errors = df['Error Percentage'].mean()
+        
+        # Calculate percentiles for response times
+        # We need to expand the data based on sample counts for accurate percentiles
+        all_response_times = []
+        for _, row in df.iterrows():
+            # Use average response time as representative for each sample
+            all_response_times.extend([row['Avg. Response Time (ms)']] * int(row['# Samples']))
+        
+        if all_response_times:
+            response_90 = int(pd.Series(all_response_times).quantile(0.90))
+            response_95 = int(pd.Series(all_response_times).quantile(0.95))
+            response_99 = int(pd.Series(all_response_times).quantile(0.99))
+        else:
+            response_90 = 0
+            response_95 = 0
+            response_99 = 0
+        
+        # Get min and max response times
+        min_response = df['Min Response Time (ms)'].min() if 'Min Response Time (ms)' in df.columns else 0
+        max_response = df['Max Response Time (ms)'].max() if 'Max Response Time (ms)' in df.columns else 0
+        
+        print(f"  ✓ Calculated aggregated summary data from {len(df)} transactions")
+    else:
+        # Extract summary values from existing ALL row
+        avg_bandwidth = all_row['Avg. Bandwidth (KBytes/s)'].values[0]
+        total_hits = int(all_row['# Samples'].values[0])
+        avg_hits_per_sec = all_row['Avg. Hits/s'].values[0]
+        response_95 = int(all_row['95% line (ms)'].values[0])
+        errors = all_row['Error Percentage'].values[0]
+        avg_response_time = all_row['Avg. Response Time (ms)'].values[0]
+        
+        print(f"  ✓ Extracted summary data from 'ALL' row")
     
-    # Extract summary values from ALL row
-    avg_bandwidth = all_row['Avg. Bandwidth (KBytes/s)'].values[0]
-    total_hits = int(all_row['# Samples'].values[0])
-    avg_hits_per_sec = all_row['Avg. Hits/s'].values[0]
-    response_95 = int(all_row['95% line (ms)'].values[0])
-    errors = all_row['Error Percentage'].values[0] / 100  # Convert to decimal
-    avg_response_time = all_row['Avg. Response Time (ms)'].values[0]
-    
-    print(f"  ✓ Extracted summary data from 'ALL' row")
+    # Convert errors to decimal if it's a percentage
+    if errors > 1:
+        errors = errors / 100
     
     # Remove the ALL row from transaction data
     df_transactions = df[df['Element Label'] != 'ALL'].copy()
