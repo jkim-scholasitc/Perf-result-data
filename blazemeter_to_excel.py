@@ -204,8 +204,8 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         worksheet['B6'] = response_95
         worksheet.merge_cells('B6:F6')
         
-        # Row 7: Errors
-        worksheet['B7'] = errors
+        # Row 7: Errors (format to 2 decimal places)
+        worksheet['B7'] = round(errors, 4)  # Store as decimal (e.g., 0.0123)
         worksheet.merge_cells('B7:F7')
         
         print(f"  ✓ Updated summary data in template")
@@ -299,7 +299,7 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         worksheet.cell(row=all_row_num, column=2, value=total_hits)
         worksheet.cell(row=all_row_num, column=3, value=int(avg_response_time))
         worksheet.cell(row=all_row_num, column=4, value=response_95)
-        worksheet.cell(row=all_row_num, column=5, value=errors * 100)
+        worksheet.cell(row=all_row_num, column=5, value=round(errors * 100, 2))
         # Determine ALL row result
         if test_type.upper() == 'API':
             all_result = 'Fail' if response_95 > 500 else 'Pass'
