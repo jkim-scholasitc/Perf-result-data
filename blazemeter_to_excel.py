@@ -71,17 +71,26 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         avg_response_time = df['Avg. Response Time (ms)'].mean()
         errors = df['Error Percentage'].mean()
         
-        # Calculate percentiles for response times
-        # We need to expand the data based on sample counts for accurate percentiles
-        all_response_times = []
-        for _, row in df.iterrows():
-            # Use average response time as representative for each sample
-            all_response_times.extend([row['Avg. Response Time (ms)']] * int(row['# Samples']))
+        # Calculate percentiles for response times using weighted average based on # Samples
+        # Use the actual percentile values from each transaction
+        total_samples = df['# Samples'].sum()
         
-        if all_response_times:
-            response_90 = int(pd.Series(all_response_times).quantile(0.90))
-            response_95 = int(pd.Series(all_response_times).quantile(0.95))
-            response_99 = int(pd.Series(all_response_times).quantile(0.99))
+        if total_samples > 0:
+            # Calculate weighted percentiles
+            if '90% line (ms)' in df.columns:
+                response_90 = int((df['90% line (ms)'] * df['# Samples']).sum() / total_samples)
+            else:
+                response_90 = 0
+            
+            if '95% line (ms)' in df.columns:
+                response_95 = int((df['95% line (ms)'] * df['# Samples']).sum() / total_samples)
+            else:
+                response_95 = 0
+            
+            if '99% line (ms)' in df.columns:
+                response_99 = int((df['99% line (ms)'] * df['# Samples']).sum() / total_samples)
+            else:
+                response_99 = 0
         else:
             response_90 = 0
             response_95 = 0
