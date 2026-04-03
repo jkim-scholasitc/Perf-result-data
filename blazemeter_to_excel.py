@@ -68,7 +68,12 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         total_hits = int(df['# Samples'].sum())
         avg_bandwidth = df['Avg. Bandwidth (KBytes/s)'].sum()
         avg_hits_per_sec = df['Avg. Hits/s'].mean()
-        avg_response_time = df['Avg. Response Time (ms)'].mean()
+        
+        # Calculate weighted average response time based on # Samples
+        if total_hits > 0:
+            avg_response_time = (df['Avg. Response Time (ms)'] * df['# Samples']).sum() / total_hits
+        else:
+            avg_response_time = 0
         
         # Calculate weighted error percentage based on # Samples
         if total_hits > 0:
