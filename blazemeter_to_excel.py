@@ -200,9 +200,8 @@ def convert_blazemeter_to_excel(input_csv, test_type='API', output_xlsx=None):
         worksheet['B5'] = avg_hits_per_sec
         worksheet.merge_cells('B5:F5')
         
-        # Row 6: 95% Response Time
-        response_time_str = f"{int(avg_response_time)}/{response_95}"
-        worksheet['B6'] = response_time_str
+        # Row 6: 95% Response Time (P95% only)
+        worksheet['B6'] = response_95
         worksheet.merge_cells('B6:F6')
         
         # Row 7: Errors
